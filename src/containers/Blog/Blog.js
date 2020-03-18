@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
+import axiosInstance from '../../axios';
 
 import Post from '../../components/Post/Post';
 import FullPost from '../../components/FullPost/FullPost';
@@ -9,7 +10,8 @@ import './Blog.css';
 class Blog extends Component {
     state = {
         posts: [],
-        selectedPostId: null
+        selectedPostId: null,
+        error: false
     }
 
     componentDidMount () {
@@ -18,7 +20,7 @@ class Blog extends Component {
         //wont pause until the get() request is finish
         //so need to use the then() function
 
-        axios.get('https://my-json-server.typicode.com/hk60906632/my_dummy_jason_server/posts')
+        axiosInstance.get('/posts')
                 .then(response => {
 
                     //only display 4 post from the response
@@ -34,7 +36,11 @@ class Blog extends Component {
                     this.setState({posts: updatePosts})
                     //this.setState({posts: response.data})
                     //console.log(response);
-                }); //this then function will be executed once the data return from server
+                })//this then() function will be executed once the data return from server
+                .catch(error => {
+                    //console.log(error);
+                    this.setState({error: true});
+                }); //this catch() is to catch the http request error
     }
 
     postSelectedHandler = (id) => {
@@ -42,12 +48,19 @@ class Blog extends Component {
     }
 
     render () {
-        const posts = this.state.posts.map( post => {
-            return <Post key={post.id} 
-                        title={post.title} 
-                        author={post.author} 
-                        clicked={() => this.postSelectedHandler(post.id)} />;
-        });
+
+        //if error exists from the http request, will only return this
+        let posts = <p style={{textAlign: 'center'}}>Something went wrong!</p>;
+
+        //if http request successful, this post will overwrite the error message
+        if (!this.state.error){
+            posts = this.state.posts.map( post => {
+                return <Post key={post.id} 
+                            title={post.title} 
+                            author={post.author} 
+                            clicked={() => this.postSelectedHandler(post.id)} />;
+            });
+        }
 
         return (
             <div>
