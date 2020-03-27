@@ -7,9 +7,12 @@ import Blog from './containers/Blog/Blog';
 
 //Any subcomponents wrapped by <BrowerRouter> can use the routing feature
 
+//every component which is loaded inside the <BrowserRouter>, will hava access to "match", "location" and "history"
+
 class App extends Component {
   render() {
     return (
+      //<BrowserRouter basename="/my-app">
       <BrowserRouter>
         <div className="App">
           <Blog />

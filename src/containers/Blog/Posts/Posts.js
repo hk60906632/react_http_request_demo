@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import axiosInstance from '../../../axios';
-import { Link } from 'react-router-dom';
+import { Route, Link } from 'react-router-dom';
 
 import Post from '../../../components/Post/Post';
 import './Posts.css';
+import FullPost from '../FullPost/FullPost';
 
 class Posts extends Component {
     state = {
@@ -39,8 +40,15 @@ class Posts extends Component {
                 }); //this catch() is to catch the http request error
     }
 
+
+    //using link is fine, but sometimes you want to navigate after something finished, after a HTTP request
     postSelectedHandler = (id) => {
-        this.setState({selectedPostId: id});
+        //this.setState({selectedPostId: id});
+        //the "history" property has that push method allow you to push a new page onto the stack of pages
+        //navigation is about a stack of pages, last page and next page means go on different pages in this stack of pages
+        
+        this.props.history.push({pathname: '/posts/' + id})
+        //alternative: this.props.history.push('/posts/' + id)
     }
 
     render () {
@@ -50,20 +58,30 @@ class Posts extends Component {
         //if http request successful, this post will overwrite the error message
         if (!this.state.error){
             posts = this.state.posts.map( post => {
-                return (<Link to={'/' + post.id} key={post.id}>
-                            <Post  
+                return (
+                        //<Link to={'/posts' + post.id} key={post.id}>
+                            <Post
+                                key={post.id}  
                                 title={post.title} 
                                 author={post.author} 
                                 clicked={() => this.postSelectedHandler(post.id)}/>
-                        </Link>);
+                        //</Link>
+                        );
             });
         }
 
+        //<Route> can be use anywhere, as long as the page or the component where you are using it is wrapped by the <BrowserRouter> (in App.js)
 
         return (
-            <section className="Posts">
+            <div>
+                <section className="Posts">
                     {posts}
-            </section>
+                </section>
+                {/* this url property is the url responsible for loading this posts component 
+                this make this dynamic, the root url will change automatically*/}
+                <Route path={this.props.match.url + '/:id'} exact component={FullPost}/>
+            </div>
+            
         );
     }
 }
